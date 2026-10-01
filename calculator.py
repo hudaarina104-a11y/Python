@@ -9,7 +9,7 @@ def tokenize(expression):#Розбиває рядок на токени
         if char.isspace():
             i += 1
             continue
-        if char in '+-*/()':
+        if char in '+-*/()': 
             tokens.append(char)
             i += 1
         elif char.isdigit() or char == '.':
