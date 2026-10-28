@@ -1,0 +1,18 @@
+batch|name|category|qty|weight_kg|sector|status
+1-P|Amoxicillin 500|антибіотик|240|36,0|A|здорово
+1-P|Vitamin C|вітамін|400|22,5|A|ціле
+3-P|Rice Pro|вакцина|150|18,0|A|ціле
+6-P|SuperCillin|антибіотик|90|13,5|A|ціле
+12-P|Amoxicillin Extra|антибіотик|120|12,0|Ps|ціле
+12-P|Vitamin D|вітамін|500|10,0|A|ціле
+2-P|Multivitamin|вітамін|600|30,0|B|ціле
+5-P|Vaccine X|вакцина|180|21,6|B|ціле
+4-P|New Vaccine|вакцина|120|15,0|B|ціле
+8-P|Complex Vitamin|вітамін|300|19,5|B|ціле
+13-P|Vitamin B|вітамін|200|20,0|B|ціле
+13-P|Special Vaccine|вакцина|90|10,8|Б|ціле
+14-P|Research Drug|дослідний|110|14,3|C|згоріло
+7-P|Antibiotic C|антибіотик|200|26,0|C|згоріло
+9-P|Vitamin B12|вітамін|350|17,5|C|згоріло
+10-P|SuperMed|антибіотик|160|20,8|C|ціле
+11-P|BioVaccine|вакцина|60|7,2|C|згоріло
