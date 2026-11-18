@@ -1,53 +1,84 @@
 
 import csv
+import os
+import tempfile
 from pathlib import Path
 from product import Product
 
-FIELDS = ["id", "name", "category", "quantity", "price", "location", "created_at"]
+FIELDS = [
+    "id", "name", "category", "quantity",
+    "price", "location", "created_at"
+]
 
 
 class CSVStorage:
-    def load(self, file_path):
-        path = Path(file_path)
+    def load(self, filename):
+        # Завантажуємо товари із CSV
+        path = Path(filename)
 
         if not path.exists():
-            raise FileNotFoundError(f"Файл не знайдено: {path}")
+            return []
 
-        products = []
+        with path.open(
+            "r", newline="", encoding="utf-8-sig"
+        ) as file:
+            sample = file.read(2048)
+            file.seek(0)
 
-        with path.open("r", encoding="utf-8-sig", newline="") as file:
-            reader = csv.DictReader(file, skipinitialspace=True)
+            try:
+                dialect = (
+                    csv.Sniffer().sniff(sample, delimiters=",;")
+                    if sample.strip()
+                    else csv.excel
+                )
+            except csv.Error:
+                dialect = csv.excel
 
-            if reader.fieldnames != FIELDS:
+            reader = csv.DictReader(file, dialect=dialect)
+
+            if not reader.fieldnames:
+                return []
+
+            required = {
+                "id", "name", "category", "quantity", "price"
+            }
+
+            if not required.issubset(set(reader.fieldnames)):
                 raise ValueError(
-                    f"Неправильні заголовки CSV: {reader.fieldnames}"
+                    "CSV має містити id, name, "
+                    "category, quantity, price"
                 )
 
-            for row in reader:
-                try:
-                    products.append(Product(
-                        id=int(row["id"]),
-                        name=row["name"],
-                        category=row["category"],
-                        quantity=int(row["quantity"]),
-                        price=float(row["price"]),
-                        location=row["location"],
-                        created_at=row["created_at"]
-                    ))
-                except (ValueError, KeyError, TypeError) as error:
-                    raise ValueError(
-                        f"Некоректний рядок CSV: {row}. Деталі: {error}"
-                    ) from error
+            return [
+                Product.from_dict(row)
+                for row in reader
+            ]
 
-        return products
-
-    def save(self, file_path, products):
-        path = Path(file_path)
+    def save(self, filename, products):
+        # Зберігаємо список товарів у CSV
+        path = Path(filename)
         path.parent.mkdir(parents=True, exist_ok=True)
 
-        with path.open("w", encoding="utf-8-sig", newline="") as file:
-            writer = csv.DictWriter(file, fieldnames=FIELDS)
-            writer.writeheader()
+        fd, tmp = tempfile.mkstemp(
+            dir=path.parent,
+            prefix=".inventory_",
+            suffix=".tmp"
+        )
 
-            for product in products:
-                writer.writerow(product.to_dict())
+        try:
+            with os.fdopen(
+                fd, "w", newline="", encoding="utf-8"
+            ) as file:
+                writer = csv.DictWriter(
+                    file, fieldnames=FIELDS
+                )
+                writer.writeheader()
+
+                for product in products:
+                    writer.writerow(product.to_dict())
+
+            os.replace(tmp, path)
+
+        finally:
+            if os.path.exists(tmp):
+                os.unlink(tmp)
